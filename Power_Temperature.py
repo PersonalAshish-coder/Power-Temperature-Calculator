@@ -1,16 +1,57 @@
 import streamlit as st
 
-st.title("🔥 Power–Temperature Calculator (Water)")
+st.title("🔥 Power–Temperature Calculator")
 
 st.write("Uses formula: P × t = m × c × ΔT")
+
+# Substance selection
+substance = st.selectbox(
+    "Select Substance",
+    [
+        "Water",
+        "Milk",
+        "Vegetable Oil",
+        "Sunflower Oil",
+        "Mustard Oil",
+        "Peanut Oil",
+        "Olive Oil",
+        "Corn Oil"
+    ]
+)
+
+# Specific heat values (J/kg°C)
+c_values = {
+    "Water": 4186,
+    "Milk": 3900,
+    "Vegetable Oil": 3230,
+    "Sunflower Oil": 3190,
+    "Mustard Oil": 1670,
+    "Peanut Oil": 2050,
+    "Olive Oil": 1850,
+    "Corn Oil": 1670
+}
+
+# Default c from selection
+default_c = c_values[substance]
+
+# Manual override option
+use_custom_c = st.checkbox("✏️ Enter specific heat manually")
+
+if use_custom_c:
+    c = st.number_input("Enter specific heat capacity (J/kg°C)", min_value=0.0)
+else:
+    c = default_c
+    st.info(f"Using c = {c} J/kg°C for {substance}")
+
+# Optional warning for oils
+if "Oil" in substance:
+    st.warning("⚠️ Oil specific heat varies depending on type and temperature")
 
 # Inputs
 power = st.text_input("Enter Power (Watts)")
 mass = st.text_input("Enter Mass (kg)")
 T = st.text_input("Enter Temperature Change (°C)")
 time = st.text_input("Enter Time (minutes)")
-
-c = 4186  # constant for water
 
 # Convert inputs
 def convert(val):
@@ -31,6 +72,9 @@ if st.button("Calculate"):
     
     if values.count(None) != 1:
         st.error("❌ Please leave exactly ONE field empty")
+    
+    elif c == 0:
+        st.error("❌ Specific heat (c) cannot be zero")
     
     else:
         try:
